@@ -18,15 +18,15 @@ interface HeaderProps {
 export default function Header({ title, onLogoClick }: HeaderProps) {
   const { darkMode, setDarkMode } = useContext(DarkModeContext);
   const CardStyle: CSSProperties = {
-    backgroundColor: darkMode ? "#222" : undefined,
-    color: darkMode ? "lightblue" : "lightgray",
+    color: darkMode ? "lightblue" : undefined,
+    backgroundColor: darkMode ? "#333" : undefined,
   };
 
   return (
     <AppBar position="static" style={CardStyle}>
       <Toolbar>
         <IconButton
-          style={darkMode ? { color: "lightblue" } : { color: "lightgray" }}
+          style={darkMode ? { color: "lightblue" } : { color: "white" }}
           onClick={onLogoClick}
         >
           <Contacts />

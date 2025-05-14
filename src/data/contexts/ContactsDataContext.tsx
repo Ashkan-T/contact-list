@@ -1,46 +1,64 @@
-import { Person } from "@mui/icons-material";
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
-type Contact = {
+export type ContactInfo = {
   name: string;
   phoneNumber: string;
   email: string;
+  iconIndex?: number;
 };
-type ContactContextType = {
-  contacts: Contact[];
-  addContact: (newContacts: Contact) => void;
+export type ContactsDataContextType = {
+  contacts: ContactInfo[];
+  addContacts: (contact: ContactInfo) => void;
   removeContactAt: (index: number) => void;
 };
-export const ContactsContext = createContext<ContactContextType>({
+export const contactsContext = createContext<ContactsDataContextType>({
   contacts: [],
-  addContact: () => {},
+  addContacts: () => {},
   removeContactAt: () => {},
 });
 
-export default function ContactsDataContextProvider({
+export default function ContactContextDataProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [contacts, setContacts] = useState<Contact[]>([
-    {
-      name: "Ashkan",
-      phoneNumber: "09300740962",
-      email: "ashkanap629@gmail.com",
-    },
-  ]);
-  const addContact = (newContacts: Contact) => {
-    setContacts([...contacts, newContacts]);
+  const [contacts, setContacts] = useState<ContactInfo[]>([]);
+  const saveContactToLocalStorage = (contact: ContactInfo[]) => {
+    const contactStr = JSON.stringify(contact);
+    localStorage.setItem("contact", contactStr);
   };
-  const removeContactAt = (index: number) => {
-    const contact = [...contacts];
-    contact.splice(index, 1);
-    setContacts(contact);
+  const loadContactFromLocalStorage = () => {
+    const gotContact = localStorage.getItem("contact");
+    if (gotContact) {
+      const savedContact: ContactInfo[] = JSON.parse(gotContact);
+      setContacts(savedContact);
+    }
   };
 
+  function handleAddContact(newContacts: ContactInfo) {
+    const newContact = [...contacts, newContacts];
+    setContacts(newContact);
+    saveContactToLocalStorage(newContact);
+  }
+  function handleRemoveContactAt(index: number) {
+    const newContact = [...contacts];
+    newContact.splice(index, 1);
+    setContacts(newContact);
+    saveContactToLocalStorage(newContact);
+  }
+  useEffect(() => {
+    loadContactFromLocalStorage();
+  }, []);
+
   return (
-    <ContactsContext.Provider value={{ contacts, addContact, removeContactAt }}>
+    <contactsContext.Provider
+      value={{
+        contacts,
+        addContacts: handleAddContact,
+        removeContactAt: handleRemoveContactAt,
+      }}
+    >
       {children}
-    </ContactsContext.Provider>
+    </contactsContext.Provider>
   );
 }
